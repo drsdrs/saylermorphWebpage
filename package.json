@@ -1,0 +1,21 @@
+{
+  "name": "saylermorph_grunt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "assemble-less": "^0.7.0",
+    "grunt": "^1.0.3",
+    "grunt-browser-sync": "^2.2.0",
+    "grunt-coffeelint": "0.0.16",
+    "grunt-contrib-coffee": "^2.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-string-replace": "^1.3.1"
+  }
+}
