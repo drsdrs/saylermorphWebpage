@@ -2,10 +2,34 @@
 class="backBtn"
 style="position: absolute;top: 8px;right: 8px;">
 
-<img src="../../img/schmitt_trigger_mini.svg" />
-Back
+<img class="backBtnImg" src="../../img/schmitt_trigger_mini.svg" />
 
 </button>
-<style></style>
+<style>
+
+.backBtn {
+  position: absolute;
+  background: #ddd;
+  border-top: 1px solid #000;
+  border-left: 1px solid #222;
+  border-right: 4px solid #888;
+  border-bottom: 4px solid #888;
+  padding: 4px 4px 0 4px;
+
+  top: 8px;
+  right: 8px;
+}
+
+.backBtn:hover {
+  top: 10px!important;
+  right: 6px!important;
+  border: 1px solid black;
+  background: #c8c8c8;
+}
+
+.backBtnImg {
+  width: 48px;
+}
+</style>
 
 </body>

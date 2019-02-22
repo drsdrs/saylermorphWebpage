@@ -32,7 +32,7 @@ initCanvas = ->
 
   ctx.shadowBlur = 0
   ctx.shadowColor = '#00ff00'
-      
+
 config =
   width: 2
   length: 1.5
@@ -41,26 +41,55 @@ config =
   branchLengthShrink: .4
   maxIterations: 10
   randomAngle: 2
-  
+
 
 configControls =
   trgContainerId: 'configControls'
   content:
-    'Branch Length':
+    'Branch length':
       funct: (val)-> config.length = val
-      type: 'range', min: 0.01, max: .75, step: .01
+      type: 'range', min: 0.1, max: 1.5, step: .001
       value: config.length
-      
-    Reset:
+    'Branch width':
+      funct: (val)-> config.width = val
+      type: 'range', min: 0.1, max: 50, step: .01
+      value: config.width
+    'Branch angle':
+      funct: (val)-> config.branchAngle = val
+      type: 'range', min: 1, max: 360, step: 1
+      value: config.branchAngle
+    'Branch amount':
+      funct: (val)-> config.branchAmount = val
+      type: 'range', min: 1, max: 36, step: 1
+      value: config.branchAmount
+    'Branch shrink':
+      funct: (val)-> config.branchLengthShrink = val
+      type: 'range', min: .1, max: .9, step: .001
+      value: config.branchLengthShrink
+    'Max iterations':
+      funct: (val)-> config.maxIterations = val
+      type: 'range', min: 1, max: 12, step: 1
+      value: config.maxIterations
+    'random angle':
+      funct: (val)-> config.randomAngle = val
+      type: 'range', min: 0, max: 90, step: 1
+      value: config.randomAngle
+    Start:
+      funct: ->
+        isPlaying = true
+        draw startPos, -90 , config.length*H , 0
+      type: 'button'
+    Stop:
+      funct: ->
+        isPlaying = false
+      type: 'button'
+    Clear:
       funct: initCanvas
       type: 'button'
-      
-
-
 
 draw = (startPos, lastAngle, lastLength, iteration)->
-  if iteration > config.maxIterations then return false  
-  
+  if iteration > config.maxIterations then return false
+
   if iteration == 0
     branchAmount = 0
     branchAngle = 0
@@ -69,14 +98,13 @@ draw = (startPos, lastAngle, lastLength, iteration)->
     branchAmount = config.branchAmount-1
     branchAngle = config.branchAngle/branchAmount
     startAngle = lastAngle - config.branchAngle/2
-    branchAngle += ((config.randomAngle/2)-(Math.random()*config.randomAngle))
-    
-  
+
+
   for branchNr in [0..branchAmount]
     ctx.lineWidth = config.width/(iteration+1)
 
     ctx.beginPath(branchNr)
-    angle = (startAngle+branchAngle*branchNr)
+    angle = (startAngle+branchAngle*branchNr)+((config.randomAngle/2)-(Math.random()*config.randomAngle))
     radian = convAngleRadian angle
     trgLength = lastLength*config.branchLengthShrink
     trgPos = convDeg2d trgLength, radian, startPos
@@ -85,15 +113,17 @@ draw = (startPos, lastAngle, lastLength, iteration)->
     ctx.stroke()
     doNext = (trgPos, angle, trgLength, iteration)->
       setTimeout (->
+        return if isPlaying == false
         draw trgPos, angle, trgLength, iteration
-      ), 0#.1*branchNr*iteration
-    
+      ), .1*branchNr*iteration
+
     doNext trgPos, angle, trgLength, iteration+2
 
 initCanvas()
 configGenerator configControls
 
+isPlaying = true
 
 startPos = x: W/2, y: H
-draw startPos, -90 , config.length*H , 0
 
+draw startPos, -90 , config.length*H , 0
