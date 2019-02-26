@@ -74,16 +74,17 @@ Fm = ->
   instrument =
     osc:
       frequency: 520
+      gain: 0.5
     modulator:
       frequency: 455
     envelopeCarrierVolume:
       start: .4
       end: 0
-      length: 1.75
+      length: 2
     envelopeModulatorVolume:
       start: 1220
       end: 5
-      length: 6
+      length: 2
     trigger: ->
       sinea.frequency.value = @modulator.frequency
       osc.frequency.value = @osc.frequency
@@ -101,7 +102,7 @@ startDrums = ->
   intrumentConfigGenerator 'fm'
 
   setInterval (->
-    instruments.fm.trigger()
+    #instruments.fm.trigger()
     #kick.filterFrequency.start = Math.random()*4000
     #instruments.fm.modulator.frequency = Math.random()*400
     #instruments.fm.osc.frequency = Math.random()*4400
@@ -148,3 +149,51 @@ intrumentConfigGenerator = (instrName)->
 
       lEl.appendChild iEl
       cEl.appendChild lEl
+
+
+# MIDI
+
+
+
+#    input.onmidimessage = getMIDIMessage
+
+onMIDIMessage = (message) ->
+  command = message.data[0]
+  note = message.data[1]
+  velocity = if message.data.length > 2 then message.data[2] else 0
+  # a velocity value might not be included with a noteOff command
+  switch command
+    when 144
+      # noteOn
+      if velocity > 0
+        instruments.fm.envelopeCarrierVolume.start = velocity / 255
+        instruments.fm.osc.frequency = note*8
+
+        instruments.fm.trigger()
+        #noteOn note, velocity
+        c.l 'noteOOn', instruments.fm.osc.frequency , instruments.fm.gain
+      else
+        instruments.fm.gain = 0
+        #noteOff note
+    when 128
+      # noteOff
+      instruments.fm.gain = 0
+      #noteOff note
+
+onMIDISuccess = (midiAccess) ->
+  # when we get a succesful response, run this code
+  midi = midiAccess
+  # this is our raw MIDI data, inputs, outputs, and sysex status
+  inputs = midi.inputs.values()
+  # loop over all available inputs and listen for any MIDI input
+  input = inputs.next()
+  while input and !input.done
+    # each time there is a midi message call the onMIDIMessage function
+    input.value.onmidimessage = onMIDIMessage
+    input = inputs.next()
+  return
+
+if navigator.requestMIDIAccess
+  navigator.requestMIDIAccess(sysex: false).then onMIDISuccess, null
+else
+  alert 'No MIDI support in your browser.'

@@ -1,5 +1,7 @@
 # build folder
 public/
+passwords
+
 
 # Logs
 logs
