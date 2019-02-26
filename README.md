@@ -2,5 +2,4 @@
 
 preview >> www.saylermorph.com
 
-npm i
-grunt
+npm i && grunt
