@@ -13,22 +13,23 @@ getProjectLinkList = ->
   '<div class="projectLinkList">'+projectLinkList+'</div>'
 
 module.exports = (grunt)->
+  require('load-grunt-tasks')(grunt)
+  grunt.loadNpmTasks('assemble-less')
 
   grunt.initConfig
-  
+
     coffeelint:
       compile:
         options:
           'no_trailing_whitespace':
             'level': 'error'
         files: src: ['src/*.coffee']
-  
+
     coffee:
       main:
         files: [
           src: 'src/mainpage/*.coffee', dest: 'public/main.js'
         ]
-        
       projects:
         options:
           join: true
@@ -40,7 +41,7 @@ module.exports = (grunt)->
           dest: 'public/projects/'
           ext: '.js'
         ]
-        
+
     less:
       main:
         files: [
@@ -52,7 +53,7 @@ module.exports = (grunt)->
         src: ['**/*.less']
         dest: 'public/projects/'
         ext: '.css'
-      
+
     copy:
       main:
         files:[
@@ -64,13 +65,19 @@ module.exports = (grunt)->
         src: ['img/*.*']
         dest: 'public/'
 
+      assets:
+        expand: true
+        cwd: 'src/projects/'
+        src: ['**/assets/*.*']
+        dest: 'public/projects'
+
       projects:
         expand: true
         cwd: 'src/projects'
         src: ['**/*.html']
         dest: 'public/projects/'
         ext: '.html'
-      
+
     'string-replace':
       backBtn2projecthtml:
         options:
@@ -94,6 +101,20 @@ module.exports = (grunt)->
           dest: 'public/index.html'
         ]
 
+    ftp_push:
+      options:
+        host: 'e91391-ftp.services.easyname.eu'
+        authKey: 'easynameSaylermorph'
+        dest: '/'
+        incrementalUpdates: true
+        debug: false
+        hideCredentials: true
+      upload:
+        files: [
+          expand: true
+          cwd: './public'
+          src: ['*.*', '**/*.*']
+        ]
 
     browserSync:
       bsFiles:
@@ -101,19 +122,14 @@ module.exports = (grunt)->
       options:
         watchTask: true
         server: "./public"
-        
+
     watch:
       files: ['./src/**/*.*', 'gruntfile.coffee']
       tasks: ['build']
-      
-  grunt.loadNpmTasks('grunt-contrib-copy')
-  grunt.loadNpmTasks('assemble-less')
-  grunt.loadNpmTasks('grunt-coffeelint')
-  grunt.loadNpmTasks('grunt-contrib-coffee')
-  grunt.loadNpmTasks('grunt-contrib-watch')
-  grunt.loadNpmTasks('grunt-string-replace')
-  grunt.loadNpmTasks('grunt-browser-sync')
-  
+
+
+
   grunt.registerTask 'default', ['doAll']
+  grunt.registerTask 'ftp', ['ftpPut']
   grunt.registerTask 'build', ['coffeelint', 'coffee', 'less', 'copy', 'string-replace']
   grunt.registerTask 'doAll', ['build', 'browserSync', 'watch']
