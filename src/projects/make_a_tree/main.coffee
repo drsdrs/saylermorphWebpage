@@ -4,17 +4,32 @@ c.l = c.log
 
 W = H = canvas = ctx = null;
 
-configControls_element = d.getElementById('configControls')
+maxBranches = 29000
+branchCnt = 0
+branchDrawn = 0
+isDrawing = false
 
-d.getElementById('openCloseConfig').onclick = ->
-  if configControls_element.style.display == 'none'
-    configControls_element.style.display = 'block'
-  else
-    configControls_element.style.display = 'none'
+configGen = ->
+  startWidth: 25*(.5+Math.random())
+  startLength: window.innerHeight*.3
+  branchAngle: 50*(.5+Math.random())
+  maxBranchAmount: 3*(2+Math.random()*4)
+  maxBranchWidth: .025+(Math.random()*1.5)
+  maxBranchChanges: 5+(Math.random()*10)
+  branchShrinkrate: .85+(Math.random()*.1)
+  randomBranchSpread: .2+(Math.random()*.8)
+
+config = configGen()
+
+configControls_element = d.getElementById('configControls')
+isDrawing_element = d.getElementById('isDrawing')
+
+d.getElementById('newtree').onclick = ->
+  startDrawing() if isDrawing == false
 
 initCanvas = ->
   if canvas != null then d.body.removeChild canvas
-  W = Math.min(window.innerWidth, window.innerHeight)
+  W = Math.min(window.innerWidth-75, window.innerHeight-75)
   H = W
   canvas = d.createElement 'canvas'
   canvas.height = H
@@ -29,101 +44,94 @@ initCanvas = ->
 
   ctx.strokeStyle = 'rgba(0, 0, 0, 1)'
   ctx.lineWidth = config.width
-
+  ctx.lineCap = "round"
   ctx.shadowBlur = 0
   ctx.shadowColor = '#00ff00'
 
-config =
-  width: 2
-  length: 1.5
-  branchAngle: 120
-  branchAmount: 8
-  branchLengthShrink: .4
-  maxIterations: 10
-  randomAngle: 2
+
+drawBranchPositions = (startPos, length, branchChanges, startAngle, branchWidth)->
+  if isDrawing == false
+    isDrawing_element.innerText = 'Working...'
+    isDrawing = true
+  branchCnt++
+
+  newBranches = []
+
+  branchDrawn++
+
+  if branchCnt>maxBranches || branchWidth < config.maxBranchWidth
+    return doneDrawBranches()
 
 
-configControls =
-  trgContainerId: 'configControls'
-  content:
-    'Branch length':
-      funct: (val)-> config.length = val
-      type: 'range', min: 0.1, max: 1.5, step: .001
-      value: config.length
-    'Branch width':
-      funct: (val)-> config.width = val
-      type: 'range', min: 0.1, max: 50, step: .01
-      value: config.width
-    'Branch angle':
-      funct: (val)-> config.branchAngle = val
-      type: 'range', min: 1, max: 360, step: 1
-      value: config.branchAngle
-    'Branch amount':
-      funct: (val)-> config.branchAmount = val
-      type: 'range', min: 1, max: 36, step: 1
-      value: config.branchAmount
-    'Branch shrink':
-      funct: (val)-> config.branchLengthShrink = val
-      type: 'range', min: .1, max: .9, step: .001
-      value: config.branchLengthShrink
-    'Max iterations':
-      funct: (val)-> config.maxIterations = val
-      type: 'range', min: 1, max: 12, step: 1
-      value: config.maxIterations
-    'random angle':
-      funct: (val)-> config.randomAngle = val
-      type: 'range', min: 0, max: 90, step: 1
-      value: config.randomAngle
-    Start:
-      funct: ->
-        isPlaying = true
-        draw startPos, -90 , config.length*H , 0
-      type: 'button'
-    Stop:
-      funct: ->
-        isPlaying = false
-      type: 'button'
-    Clear:
-      funct: initCanvas
-      type: 'button'
+  branchChangePositions = for i in [0...branchChanges]
+    Math.random()*(length/branchChanges*1.5)
 
-draw = (startPos, lastAngle, lastLength, iteration)->
-  if iteration > config.maxIterations then return false
+  for nxtLength, i in branchChangePositions
+    randomDeg = startAngle+(22-(Math.random()*44))
+    ctx.lineWidth = branchWidth
 
-  if iteration == 0
-    branchAmount = 0
-    branchAngle = 0
-    startAngle = lastAngle
-  else
-    branchAmount = config.branchAmount-1
-    branchAngle = config.branchAngle/branchAmount
-    startAngle = lastAngle - config.branchAngle/2
+    red = Math.round Math.random()*32
+    green = Math.round Math.random()*32
+    blue = Math.round Math.random()*16
 
+    red += 100
+    green += 50
 
-  for branchNr in [0..branchAmount]
-    ctx.lineWidth = config.width/(iteration+1)
+    ctx.strokeStyle = 'rgba('+(red)+', '+green+', '+blue+', 1)'
 
-    ctx.beginPath(branchNr)
-    angle = (startAngle+branchAngle*branchNr)+((config.randomAngle/2)-(Math.random()*config.randomAngle))
-    radian = convAngleRadian angle
-    trgLength = lastLength*config.branchLengthShrink
-    trgPos = convDeg2d trgLength, radian, startPos
+    ctx.beginPath()
     ctx.moveTo startPos.x, startPos.y
-    ctx.lineTo trgPos.x, trgPos.y
+    startPos = convDeg2d nxtLength, convAngleRadian(randomDeg), startPos
+    ctx.lineTo startPos.x, startPos.y
     ctx.stroke()
-    doNext = (trgPos, angle, trgLength, iteration)->
-      setTimeout (->
-        return if isPlaying == false
-        draw trgPos, angle, trgLength, iteration
-      ), .1*branchNr*iteration
 
-    doNext trgPos, angle, trgLength, iteration+2
+    branchWidth *= config.branchShrinkrate
+
+    if Math.random() < config.randomBranchSpread
+      newBranches.push startPos
+
+  branchAmount = Math.random()*config.maxBranchAmount
+
+  if branchCnt < maxBranches+branchAmount
+    for i in [0..branchAmount] then newBranches.push startPos
+
+  for newStartPos in newBranches
+    #setTimeout (->
+      newAngle = 1-(Math.random()*2)
+      newAngle *= config.branchAngle
+      drawBranchPositions newStartPos, length*.75 , config.maxBranchChanges, startAngle+newAngle, branchWidth*config.branchShrinkrate
+    #), -1
+
+  branchDrawn--
+
+
+doneDrawBranches = ->
+  setTimeout (->
+    branchDrawn--
+    if branchDrawn == 0
+      c.l 'done: ', branchCnt, branchDrawn
+      isDrawing_element.innerText = 'Done!'
+      isDrawing = false
+      branchCnt = 0
+      config = configGen()
+  ), 250
+
+
+
+
+clearCanvas = ->
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect 0, 0, W, H
 
 initCanvas()
-configGenerator configControls
-
-isPlaying = true
+#configGenerator configControls
 
 startPos = x: W/2, y: H
 
-draw startPos, -90 , config.length*H , 0
+
+startDrawing = ->
+  clearCanvas()
+  drawBranchPositions startPos, config.startLength , config.maxBranchChanges, -90, config.startWidth
+
+
+startDrawing()

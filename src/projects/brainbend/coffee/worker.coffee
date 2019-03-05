@@ -25,6 +25,9 @@
 
 ###
 
+DEBUG = false
+DEBUG_TEMPREGISTER = false
+
 instructions = ""
 instructionPointer = 0
 
@@ -35,7 +38,7 @@ stackLength = defaultSize*defaultSize
 pointer = 0
 pointer2D = new Uint8Array 2
 
-instructionsPerCycle = stackLength/8
+instructionsPerCycle = 32768
 
 processing = false
 tempRegister = new Uint8Array 1 # for temporary register as calculation
@@ -46,8 +49,10 @@ getStackCell = ()-> stack[pointer]
 setStackCell = (val)-> stack[pointer] = val
 
 getTempRegister = ()-> tempRegister[0]
-setTempRegister = (newVal)-> tempRegister[0] = newVal
-
+setTempRegister = (newVal)->
+  tempRegister[0] = newVal
+  tempRegister[0] &= 255
+  if DEBUG_TEMPREGISTER then console.log 'setTempregister '+tempRegister[0]
 
 alu = (operator)->
   if operator=="+" then setTempRegister getStackCell() + getTempRegister()
@@ -92,16 +97,21 @@ parseInstructions = (instrUnparsed)->
 
   checkLoop()
   resetStack()
+  #console.log 'setInstr: '+parsedInst
   instructions = parsedInst
 
 process = (i)-> # i=instruction
-  if(i=="w"||i=="a"||i=="s"||i=="d") then setPointer i
+  if(i=="w"||i=="a"||i=="s"||i=="d") then setPointer2D i
   else if(i=="+" || i=="-" || i=="^" || i=="&" || i=="|" || i=="<" || i==">")
     alu i
   else if(i=="r") then incStackCell()
   else if(i=="f") then decStackCell()
-  else if(i=="x") then pointer2D[0] = getTempRegister()
-  else if(i=="y") then pointer2D[1] = getTempRegister()
+  else if(i=="x")
+    pointer2D[0] = getTempRegister()
+    setPointerFrom2D()
+  else if(i=="y")
+    pointer2D[1] = getTempRegister()
+    setPointerFrom2D()
   else if(i=="c") then setStackCell getTempRegister()
   else if(i=="v") then setTempRegister getStackCell()
 
@@ -117,19 +127,27 @@ processInstructionSet = ->
     if instructionPointer == instrLen then instructionPointer = 0
     instruction = tempInstr[instructionPointer]
     process instruction
+    if DEBUG then console.log 'next instruction: '+instruction+' pointer: '+pointer2D+' stackValue: '+getStackCell()+ ' tempregister: '+getTempRegister()
     instructionPointer++
 
   processing = false
 
-setPointer = (dir)->
+setPointer2D = (dir)->
   if dir=="w"
     if(pointer2D[1]==0) then pointer2D[1] = defaultSize-1 else pointer2D[1]--
+    setPointerFrom2D()
   else if dir=="s"
     if(pointer2D[1]==defaultSize-1) then pointer2D[1] = 0 else pointer2D[1]++
+    setPointerFrom2D()
   else if dir=="a"
     if(pointer2D[0]==0) then pointer2D[0] = defaultSize-1 else pointer2D[0]--
+    setPointerFrom2D()
   else if dir=="d"
     if(pointer2D[0]==defaultSize-1) then pointer2D[0] = 0 else pointer2D[0]++
+    setPointerFrom2D()
+  else console.log "ERROR in setPointer2D, dir: "+dir
+
+setPointerFrom2D = ->
   pointer = pointer2D[0]+(pointer2D[1]*defaultSize)
 
 
@@ -137,7 +155,7 @@ nextMsgType = ""
 
 self.onmessage = (n) ->
   if nextMsgType == "getInstructions"
-    nextMsgType = ""
+    nextMsgType = ''
     while processing==true then null#throw 6660666
     parseInstructions n.data
   else if nextMsgType == "getCpuFreq"

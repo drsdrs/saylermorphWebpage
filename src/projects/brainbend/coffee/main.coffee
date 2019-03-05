@@ -25,7 +25,7 @@ init = ->
 
   audioVolume = audioVolumeEL.value
 
-  wwCanvas = new Worker "coffee/worker.js"
+  wwCanvas = new Worker "./coffee/worker.js"
 
   setBuffer = ->
     sr = Pico.sampleRate
@@ -84,7 +84,7 @@ init = ->
     textEl.innerHTML = char
 
     instrRaw = textOriginalEl.value
-    instrRaw = instrRaw.replace(/[^23456789wasdrfyxc\+\-\|\&\^]/g, "")
+    instrRaw = instrRaw.replace(/[^23456789wasdrfyxcv\+\-\|\&\^]/g, "")
     return if instrRaw.length==0 || prevTextValue == e.target.value
     prevTextValue = e.target.value
     wwCanvas.postMessage "S"

@@ -1,34 +1,29 @@
 <a href="/"
-class="backBtn"
-style="position: absolute;top: 8px;right: 8px;">
+class="backBtn" >
 
-<img class="backBtnImg" src="../../img/schmitt_trigger_mini.svg" />
+<img class="backBtnImg" src="../../img/st_mini.png" />
 
 </a>
 <style>
 
 .backBtn {
   position: absolute;
-  background: #ddd;
-  border-top: 1px solid #000;
-  border-left: 1px solid #222;
-  border-right: 4px solid #888;
-  border-bottom: 4px solid #888;
-  padding: 4px 4px 0 4px;
-
-  top: 8px;
-  right: 8px;
+  top: 0;
+  right: 0;
 }
 
-.backBtn:hover {
-  top: 10px!important;
-  right: 6px!important;
-  border: 1px solid black;
-  background: #c8c8c8;
+.backBtnImg:hover {
+  -webkit-transform: scaleX(1);
+  transform: scaleX(1);
 }
 
 .backBtnImg {
-  width: 48px;
+  padding: 18px;
+  transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+
+  -webkit-transition: -webkit-transform .8s ease-in-out;
+  transition: transform .8s ease-in-out;
 }
 </style>
 

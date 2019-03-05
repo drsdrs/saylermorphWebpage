@@ -1,16 +1,36 @@
 fs = require 'fs'
 
+rankingSort = (a, b) ->
+  if a.ranking < b.ranking then 1
+  else if a.ranking > b.ranking then -1
+  else 0
+
 getProjectLinkList = ->
-  projectLinkList = ''
+  projectLinkList = []
+  renderedProjectLinkList = ''
   projectList = fs.readdirSync('src/projects')
   linkTemplate = fs.readFileSync('src/projectLink.html')+''
-  for projectName in projectList
-    renderedLink = linkTemplate.replace('<link>', 'projects/'+projectName+'/index.html')
-    renderedLink = renderedLink.replace('<linkname>', projectName.replace(/_/g, ' '))
+  for projectName, i in projectList
+    projectInfo = JSON.parse fs.readFileSync('./src/projects/'+projectName+'/project.json')
+    if projectInfo.link
+      link = 'http://'+projectInfo.link
+    else
+      link = 'projects/'+projectName
+    renderedLink = linkTemplate.replace('<link>', link)
+    renderedLink = renderedLink.replace('<title>', projectInfo.title)
+    renderedLink = renderedLink.replace('<shortDesc>', projectInfo.shortDesc)
+    renderedLink = renderedLink.replace('<desc>', projectInfo.desc||"")
+    renderedLink = renderedLink.replace('<imgLink>', 'screenshots/'+projectName+'.png')
 
-    projectLinkList += renderedLink
+    projectLinkList.push
+      html: renderedLink
+      ranking: projectInfo.ranking
 
-  '<div class="projectLinkList">'+projectLinkList+'</div>'
+  projectLinkList.sort(rankingSort)
+
+  for projectData in projectLinkList
+    renderedProjectLinkList += projectData.html
+  '<div class="projectLinkList">'+renderedProjectLinkList+'</div>'
 
 module.exports = (grunt)->
   require('load-grunt-tasks')(grunt)
@@ -29,6 +49,16 @@ module.exports = (grunt)->
       main:
         files: [
           src: 'src/mainpage/*.coffee', dest: 'public/main.js'
+        ]
+      sharedScripts:
+        options:
+          bare: true
+        files: [
+          expand: true
+          cwd: 'src'
+          src: ['sharedScripts/**/*.coffee']
+          dest: 'public/'
+          ext: '.js'
         ]
       projects:
         options:
@@ -50,7 +80,7 @@ module.exports = (grunt)->
       projects:
         expand: true
         cwd: 'src/projects'
-        src: ['**/*.less']
+        src: ['**/main.less']
         dest: 'public/projects/'
         ext: '.css'
 
@@ -64,13 +94,20 @@ module.exports = (grunt)->
         cwd: 'src/mainpage/'
         src: ['img/*.*']
         dest: 'public/'
-
+      screenshots:
+        expand: true
+        cwd: 'src/screenshots/'
+        src: ['*.png']
+        dest: 'public/screenshots'
       assets:
         expand: true
         cwd: 'src/projects/'
         src: ['**/assets/*.*']
         dest: 'public/projects'
-
+      favicon: files: [
+        'public/favicon.ico': 'src/mainpage/favicon.ico'
+        'public/favicon.png': 'src/mainpage/favicon.png'
+      ]
       projects:
         expand: true
         cwd: 'src/projects'
@@ -130,6 +167,6 @@ module.exports = (grunt)->
 
 
   grunt.registerTask 'default', ['doAll']
-  grunt.registerTask 'ftp', ['ftpPut']
+  grunt.registerTask 'ftp', ['ftp_push']
   grunt.registerTask 'build', ['coffeelint', 'coffee', 'less', 'copy', 'string-replace']
   grunt.registerTask 'doAll', ['build', 'browserSync', 'watch']

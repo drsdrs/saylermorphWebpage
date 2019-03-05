@@ -46,8 +46,8 @@ clearCanvas = ->
 
 
 config =
-  canvasWidth: 1800
-  canvasHeight: 1800
+  canvasWidth: 1024
+  canvasHeight: 1024
   startX1: 0
   startY1: 0
   startX2: 0
@@ -122,6 +122,12 @@ configControls =
       funct: (val)-> config.iterations = val
       type: 'range', min: 0, max: 10000, step: 1
       value: config.iterations
+
+
+    SaveImage:
+      funct: ->
+        window.location.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream')
+      type: 'button'
 
     ResetColors:
       funct: ->

@@ -2,20 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>spiro</title>
-  <meta name="description" content="The HTML5 Herald">
+  <title>Tree generator</title>
+  <meta name="description" content="Generate tree/shrub structures">
   <meta name="author" content="saylermorph">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./main.css">
 
 </head>
 
 <body>
-  <div class="configContainer">
-    <button id="openCloseConfig">Open/Close Config</button>
-    <div style="display: block;" id="configControls"></div>
+
+  <div class="isPlayingContainer">
+    <h3>
+      Drawing: <span id="isDrawing">Working...</span>
+    </h3>
   </div>
 
-  <script src="helpers.js"></script>
+  <button id="newtree">Draw new tree</button>
+
+  <script src="/sharedScripts/mathHelpers.js"></script>
   <script src="main.js"></script>
 
 

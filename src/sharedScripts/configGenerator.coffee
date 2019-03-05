@@ -1,30 +1,27 @@
-convDeg2d = (l, deg, centre)->
-  x: (l*Math.cos(deg))+centre.x
-  y: (l*Math.sin(deg))+centre.y
-
-convAngleRadian = (angle)->
-  angle * (Math.PI / 180)
-
-
 configGenerator = (config)->
   trgContainer = d.getElementById config.trgContainerId
   trgContainer.innerHTML = ''
-  createInput = (name,cc)->
+  createInput = (name, cc)->
     iEl = d.createElement 'input'
     if cc.type=='range'
       nEl = d.createElement 'input'
       nEl.type = 'text'
-      nEl.disabled = true
       nEl.value = cc.value
       iEl.type = 'range'
       iEl.min = cc.min
       iEl.max = cc.max
       iEl.step = cc.step
       iEl.value = cc.value
+
       iEl.onchange = (e)->
         val = parseFloat e.target.value
         cc.funct val
         nEl.value = val
+      nEl.onchange = (e)->
+        val = parseFloat e.target.value
+        cc.funct val
+        iEl.value = val
+
       labelEl = d.createElement 'label'
       labelEl.innerText = name+': '
       trgContainer.appendChild labelEl

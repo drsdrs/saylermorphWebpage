@@ -1,8 +1,14 @@
+@import 'styles/responsive.less';
+
+* {
+  font-family: monospace;
+}
+
 body {
-  background-image: url("img/noise.png");
+  background-image: url("img/noise-dense.png");
   background-repeat: repeat;
-  background-size: contain;
-  background-color: #888;
+  background-size: 30%;
+  background-color: #69ad58;
   text-align: center;
   margin: 0;
   padding: 0;
@@ -10,28 +16,61 @@ body {
 
 .logoContainer {
   background-image: url("img/noise-dense.png");
-  background-color: #ebebeb;
+  background-repeat: repeat;
+  background-size: initial;
+  background-color: #58a1ad;
   border-bottom: 4px solid black;
-  margin-bottom: 12px;
-  padding: 12px 0;
+  margin-bottom: 36px;
+  padding: 36px 0;
+
   img {
     width: 33%;
   }
+
 }
 
 
 .projectLinkList{
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
 
-  a {
+  .projectLinkContainer {
+    display: flex;
+    a {
+      padding: 12px;
       -webkit-appearance: button;
       -moz-appearance: button;
       appearance: button;
       text-transform: uppercase;
       text-decoration: none;
       color: initial;
-      width: 80%;
       text-align: center;
-      padding: 8px;
-      margin: 2px;
+      width: 100%;
+      img {
+        width:100%;
+        float: left;
+        padding: 8px;
+        image-rendering: crisp-edges;
+      }
+    }
+  }
+}
+
+
+footer {
+  background-image: url("img/noise-dense.png");
+  background-repeat: repeat;
+  background-size: initial;
+  background-color: #bdd670;
+  border-top: 4px solid black;
+  margin: 36px 0 0 0;
+  padding: 36px 0;
+  a {
+    text-decoration: none;
+    color: #000;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
