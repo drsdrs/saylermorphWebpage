@@ -1,10 +1,10 @@
 configGenerator = (config)->
-  trgContainer = d.getElementById config.trgContainerId
+  trgContainer = document.getElementById config.trgContainerId
   trgContainer.innerHTML = ''
   createInput = (name, cc)->
-    iEl = d.createElement 'input'
+    iEl = document.createElement 'input'
     if cc.type=='range'
-      nEl = d.createElement 'input'
+      nEl = document.createElement 'input'
       nEl.type = 'text'
       nEl.value = cc.value
       iEl.type = 'range'
@@ -22,12 +22,12 @@ configGenerator = (config)->
         cc.funct val
         iEl.value = val
 
-      labelEl = d.createElement 'label'
+      labelEl = document.createElement 'label'
       labelEl.innerText = name+': '
       trgContainer.appendChild labelEl
       trgContainer.appendChild iEl
       trgContainer.appendChild nEl
-      trgContainer.appendChild d.createElement 'br'
+      trgContainer.appendChild document.createElement 'br'
     else if cc.type=='button'
       iEl.type = 'button'
       iEl.onclick = -> cc.funct()

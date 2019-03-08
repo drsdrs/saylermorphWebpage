@@ -45,6 +45,14 @@ module.exports = (grunt)->
             'level': 'error'
         files: src: ['src/*.coffee']
 
+    coffeescript_concat:
+      compile:
+        options: bare: false
+        files:[
+          'src/projects/space_dodger/main.coffee': ['src/projects/space_dodger/**/*.coffee']
+          'src/projects/c64_textmode/main.coffee': ['src/projects/c64_textmode/**/*.coffee']
+        ]
+
     coffee:
       main:
         files: [
@@ -63,11 +71,12 @@ module.exports = (grunt)->
       projects:
         options:
           join: true
-          bare: true
+          bare: false
         files: [
           expand: true
+          flatten: false
           cwd: 'src/projects'
-          src: ['**/*.coffee']
+          src: ['*/*.coffee']
           dest: 'public/projects/'
           ext: '.js'
         ]
@@ -168,5 +177,5 @@ module.exports = (grunt)->
 
   grunt.registerTask 'default', ['doAll']
   grunt.registerTask 'ftp', ['ftp_push']
-  grunt.registerTask 'build', ['coffeelint', 'coffee', 'less', 'copy', 'string-replace']
+  grunt.registerTask 'build', ['coffeelint', 'coffeescript_concat', 'coffee', 'less', 'copy', 'string-replace']
   grunt.registerTask 'doAll', ['build', 'browserSync', 'watch']

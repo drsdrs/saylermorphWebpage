@@ -1,0 +1,33 @@
+body, document {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.configContainer{
+  #openCloseConfig{
+    position: fixed;
+    right: 8px;
+    bottom: 8px;
+  }
+  #configControls {
+    position: fixed;
+    left: 8px;
+    bottom: 8px;
+    width: 80%;
+    background: rgba(0,0,0,.25);
+    padding: 8px;
+    input[type=range] { width: 78%; }
+    input[type=text] {
+      width: 42px;
+      margin-left: 8px;
+      color: black;
+      text-align: center;
+    }
+    label {
+      width: 15%;
+      display: inline-block;
+      text-shadow: 0px 0px 3px green;
+    }
+  }
+}

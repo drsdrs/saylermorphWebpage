@@ -25,7 +25,7 @@ init = ->
 
   audioVolume = audioVolumeEL.value
 
-  wwCanvas = new Worker "./coffee/worker.js"
+  wwCanvas = new Worker "worker.js"
 
   setBuffer = ->
     sr = Pico.sampleRate
@@ -40,7 +40,7 @@ init = ->
         out[0][i] = audioData[pos+i] / 255 / 255 * audioVolume
         out[1][i] = out[0][i]
         i++
-      if (bufferCnt+1)*bs>audioData.length then bufferCnt = 0
+      if (bufferCnt+2)*bs>audioData.length then bufferCnt = 0
       else bufferCnt++
 
 
